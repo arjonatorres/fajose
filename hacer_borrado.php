@@ -15,9 +15,7 @@
             buscarPelicula($pdo, $id, $error);
             comprobarErrores($error);
 
-            $sent = $pdo->prepare('DELETE FROM peliculas
-                                         WHERE id = :id');
-            $sent->execute([':id' => $id]);
+            borrarPelicula($pdo, $id, $error);
             ?>
             <h3>Película borrada correctamente</h3>
             <?php

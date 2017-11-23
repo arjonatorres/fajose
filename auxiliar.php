@@ -53,3 +53,14 @@ function volver():void
     <a href="index.php">Volver</a>
     <?php
 }
+
+function borrarPelicula(PDO $pdo, int $id, array $error): void
+{
+    $sent = $pdo->prepare('DELETE FROM peliculas
+                                 WHERE id = :id');
+    $sent->execute([':id' => $id]);
+    if ($sent->rowCount() !== 1) {
+        $error[] = 'Se ha producido un problema al borrar la película';
+        throw new Exception;
+    }
+}
