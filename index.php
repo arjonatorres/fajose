@@ -58,6 +58,7 @@
                     ?>
                 </tbody>
             </table>
+            <a href="insertar.php">Insertar una película</a>
         </div>
 
     </body>
