@@ -64,3 +64,80 @@ function borrarPelicula(PDO $pdo, int $id, array $error): void
         throw new Exception;
     }
 }
+
+function comprobarTitulo(string $titulo, array &$error): void
+{
+    if ($titulo === '') {
+        $error[] = 'El título es obligatorio';
+        return;
+    }
+    if (mb_strlen($titulo) > 255) {
+        $error[] = 'El título es demasiado largo';
+    }
+}
+
+function comprobarAnyo(string $anyo, array &$error): void
+{
+    if ($anyo === '') {
+        return;
+    }
+    $filtro = filter_var($anyo , FILTER_VALIDATE_INT, [
+        'options' => [
+            'min_range' => 0,
+            'max_range' => 9999,
+        ],
+    ]);
+    if ($filtro === false) {
+        $error[] = 'Año no válido';
+    }
+}
+
+function comprobarDuracion(string $duracion, array &$error): void
+{
+    if ($duracion === '') {
+        return;
+    }
+    $filtro = filter_var($duracion , FILTER_VALIDATE_INT, [
+        'options' => [
+            'min_range' => 0,
+            'max_range' => 32767,
+        ],
+    ]);
+    if ($filtro === false) {
+        $error[] = 'Duración no válida';
+    }
+}
+
+function comprobarGenero(PDO $pdo, string $genero_id, array &$error): void
+{
+    if ($genero_id === '') {
+        $error[] = 'El género es obligatorio';
+        return;
+    }
+    $filtro = filter_var($genero_id , FILTER_VALIDATE_INT, [
+        'options' => [
+            'min_range' => 1,
+        ],
+    ]);
+    if ($filtro === false) {
+        $error[] = 'El género debe ser un número entero > 0';
+        return;
+    }
+    $sent = $pdo->prepare('SELECT COUNT(*)
+                             FROM generos
+                            WHERE id = :id');
+    $sent->execute([':id' => $genero_id]);
+    if ($sent->fetchColumn() === 0) {
+        $error[] = 'El género no existe';
+    }
+}
+
+function insertarPelicula(PDO $pdo, array $valores): void
+{
+    $cols = array_keys($valores);
+    $vals = array_fill(0, count($valores), '?');
+    $instr = 'INSERT INTO peliculas(' . implode(', ', $cols) . ') ' .
+                'VALUES (' . implode(', ', $vals) . ')';
+    $sent = $pdo->prepare($instr);
+    $sent->execute(array_values($valores));
+}
